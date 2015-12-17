@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="viewPagerLoop">
+        <!--是否需要指示器-->
+        <attr name="isIndicate" format="reference|boolean" />
+        <!--指示器的选中颜色-->
+        <attr name="indicateSelectColor" format="reference|color" />
+        <!--指示器的没有选中的颜色-->
+        <attr name="indicateColor" format="reference|color" />
+        <!--指示器的样式-->
+        <attr name="indicateStyle" format="reference|string" />
+        <!--是否自动循环-->
+        <attr name="isAutoLoop" format="reference|boolean" />
+        <!--自动循环间隔-->
+        <attr name="loopTime" format="reference|integer" />
+        <!--是否无线循环-->
+        <attr name="isLoop" format="reference|boolean" />
+    </declare-styleable>
+
+</resources>
