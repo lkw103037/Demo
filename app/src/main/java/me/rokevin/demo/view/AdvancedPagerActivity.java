@@ -33,7 +33,7 @@ public class AdvancedPagerActivity extends AppCompatActivity {
         userList.add(user2);
 
         RoPagerView cPager = (RoPagerView) findViewById(R.id.c_loop);
-        cPager.setDataList(userList);
+
         cPager.getAdapter().setPagerFragment(new RoPagerFragmentAdapter.IRoPagerFragment() {
             @Override
             public RoPagerFragment getFragment(RoPagerFragmentAdapter adapter, int position) {
@@ -43,6 +43,8 @@ public class AdvancedPagerActivity extends AppCompatActivity {
                 return roPagerFragment;
             }
         });
+
+        cPager.setDataList(userList);
     }
 
     @Override

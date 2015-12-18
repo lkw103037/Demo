@@ -2,6 +2,7 @@ package me.rokevin.ropager.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
@@ -21,6 +22,13 @@ import me.rokevin.ropager.adapter.RoPagerFragmentAdapter;
  * 扩展ViewPagar、可控制无线循环和自动循环
  */
 public class RoPagerView<T> extends LinearLayout {
+
+    private static final String TAG = RoPagerView.class.getSimpleName();
+
+    /**
+     * 默认自动循环间隔
+     */
+    private final int DEFAULT_LOOP_TIME = 5000;
 
     private ViewPager vpPager;
 
@@ -57,7 +65,17 @@ public class RoPagerView<T> extends LinearLayout {
     /**
      * 自动循环间隔
      */
-    private int loopTime;
+    private int loopTime = DEFAULT_LOOP_TIME;
+
+    /**
+     * 自动循环定时器
+     */
+    private CountDownTimer mCountDownTimer;
+
+    /**
+     * 是否取消自动循环
+     */
+    private boolean isCancelAutoLoop;
 
     private RoPagerFragmentAdapter fragmentAdapter;
 
@@ -78,7 +96,14 @@ public class RoPagerView<T> extends LinearLayout {
 
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.roPager);
 
+        // 是否显示指示器
         isIndicate = typedArray.getBoolean(R.styleable.roPager_isIndicate, false);
+
+        // 是否自动循环
+        isAutoLoop = typedArray.getBoolean(R.styleable.roPager_isAutoLoop, false);
+
+        // 自动循环间隔
+        loopTime = typedArray.getInt(R.styleable.roPager_loopTime, DEFAULT_LOOP_TIME);
 
         // 是否无线循环
         final boolean isLoop = typedArray.getBoolean(R.styleable.roPager_isLoop, false);
@@ -141,6 +166,55 @@ public class RoPagerView<T> extends LinearLayout {
         });
 
         vpPager.setAdapter(fragmentAdapter);
+
+        if (isAutoLoop && null == mCountDownTimer) {
+
+            mCountDownTimer = new CountDownTimer(5000000, loopTime) {
+
+                @Override
+                public void onTick(long millisUntilFinished) {
+
+                    if (null != vpPager && !isCancelAutoLoop) {
+                        int currentItem = vpPager.getCurrentItem() + 1;
+
+                        if (currentItem == vpPager.getAdapter().getCount()) {
+
+                            try {
+
+                                // 滑到最右边回归到第一个位置
+                                vpPager.setCurrentItem(0);
+
+                            } catch (Exception e) {
+
+                            }
+
+                        } else {
+
+                            try {
+
+                                // 向右滑
+                                //viewPager.arrowScroll(2);
+                                vpPager.setCurrentItem(currentItem);
+
+                            } catch (Exception e) {
+
+                            }
+                        }
+                    } else {
+                        isCancelAutoLoop = true;
+                        cancel();
+                    }
+                }
+
+                @Override
+                public void onFinish() {
+
+                    if (!isCancelAutoLoop) {
+                        mCountDownTimer.start();
+                    }
+                }
+            };
+        }
     }
 
     public void setDataList(ArrayList<T> dateList) {
@@ -152,6 +226,18 @@ public class RoPagerView<T> extends LinearLayout {
         } else {
             vpPager.setCurrentItem(0, false);
         }
+
+        if (isAutoLoop && null != mCountDownTimer) {
+
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+
+                    mCountDownTimer.start();
+
+                }
+            }, loopTime);
+        }
     }
 
     public RoPagerFragmentAdapter getAdapter() {
@@ -159,4 +245,10 @@ public class RoPagerView<T> extends LinearLayout {
         return fragmentAdapter;
     }
 
+    /**
+     * 设置控件高度
+     */
+    public void setHeight() {
+
+    }
 }

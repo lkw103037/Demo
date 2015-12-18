@@ -7,6 +7,7 @@
         android:id="@+id/c_loop"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        me:isAutoLoop="true"
         me:isLoop="true" />
 
 </RelativeLayout>
