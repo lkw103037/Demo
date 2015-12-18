@@ -77,6 +77,11 @@ public class RoPagerView<T> extends LinearLayout {
      */
     private boolean isCancelAutoLoop;
 
+    /**
+     * 是否处于空闲状态
+     */
+    private boolean isIdle = true;
+
     private RoPagerFragmentAdapter fragmentAdapter;
 
     /**
@@ -162,6 +167,7 @@ public class RoPagerView<T> extends LinearLayout {
             @Override
             public void onPageScrollStateChanged(int state) {
 
+                isIdle = (state == ViewPager.SCROLL_STATE_IDLE);
             }
         });
 
@@ -174,7 +180,13 @@ public class RoPagerView<T> extends LinearLayout {
                 @Override
                 public void onTick(long millisUntilFinished) {
 
+                    // 如果处于手机碰触状态则不执行
+                    if (!isIdle) {
+                        return;
+                    }
+
                     if (null != vpPager && !isCancelAutoLoop) {
+
                         int currentItem = vpPager.getCurrentItem() + 1;
 
                         if (currentItem == vpPager.getAdapter().getCount()) {
