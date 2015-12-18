@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import me.rokevin.demo.R;
 import me.rokevin.demo.model.User;
+import me.rokevin.ropager.view.RoPagerView;
 
 public class AdvancedPagerActivity extends AppCompatActivity {
 
@@ -28,7 +29,7 @@ public class AdvancedPagerActivity extends AppCompatActivity {
         userList.add(user1);
         userList.add(user2);
 
-        // AdvancedPagerView cLoop = (AdvancedPagerView) findViewById(R.id.c_loop);
+        RoPagerView cPager = (RoPagerView) findViewById(R.id.c_loop);
     }
 
     @Override
