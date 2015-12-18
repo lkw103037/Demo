@@ -29,7 +29,7 @@ android {
         compile 'com.android.support:design:23.1.1'
         compile 'com.android.support:support-v4:23.1.1'
         compile 'com.android.support:recyclerview-v7:23.1.1'
-        //compile(name: 'LoopViewPager-debug', ext: 'aar')
+        //compile(name: 'ropager-release', ext: 'aar')
     }
 }
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <declare-styleable name="viewPagerLoop">
+    <declare-styleable name="roPager">
         <!--是否需要指示器-->
         <attr name="isIndicate" format="reference|boolean" />
         <!--指示器的选中颜色-->
@@ -10,6 +10,8 @@
         <attr name="indicateColor" format="reference|color" />
         <!--指示器的样式-->
         <attr name="indicateStyle" format="reference|string" />
+        <!--是否是Fragment-->
+        <attr name="isFragment" format="reference|boolean" />
         <!--是否自动循环-->
         <attr name="isAutoLoop" format="reference|boolean" />
         <!--自动循环间隔-->

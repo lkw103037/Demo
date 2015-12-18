@@ -2,46 +2,74 @@ package me.rokevin.ropager.fragment;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import me.rokevin.ropager.R;
+import java.util.ArrayList;
+
+import me.rokevin.ropager.adapter.RoPagerFragmentAdapter;
 
 /**
  * Created by luokaiwen on 15/12/17.
  */
-public class RoPagerFragment extends Fragment {
+public abstract class RoPagerFragment<T> extends Fragment {
 
-    private static final String POSTION = "position";
+    protected static final String TAG = RoPagerFragment.class.getSimpleName();
 
-    private int position;
+    protected static final String POSTION = "position";
+    protected static final String ADAPTER = "adapter";
 
-    public static RoPagerFragment newInstance(int position) {
-        RoPagerFragment fragment = new RoPagerFragment();
-        Bundle args = new Bundle();
-        args.putInt(POSTION, position);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    protected static RoPagerFragmentAdapter mAdapter;
 
-    public RoPagerFragment() {
-
-    }
+    protected int position;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            position = getArguments().getInt(POSTION);
+            position = getPosition();
+            mAdapter = getAdapter();
         }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        View v = inflater.inflate(R.layout.fragment_pager, container, false);
+        //View v = inflater.inflate(R.layout.fragment_pager, container, false);
+        Log.e(TAG, "layoutId():" + layoutId());
+        View v = inflater.inflate(layoutId(), container, false);
+
+        ArrayList<T> dataList = mAdapter.getDataList();
+
+        int size = dataList.size();
+
+        T t;
+
+        if (mAdapter.isLoop()) {
+            if (position == 0) {
+                t = dataList.get(size - 1);
+            } else if (position == size + 1) {
+                t = dataList.get(0);
+            } else {
+                t = dataList.get(position - 1);
+            }
+        } else {
+            t = dataList.get(position);
+        }
+
+
+        onView(v, t, position);
 
         return v;
     }
+
+    public abstract void onView(View view, T t, int position);
+
+    public abstract int layoutId();
+
+    public abstract int getPosition();
+
+    public abstract RoPagerFragmentAdapter getAdapter();
 }

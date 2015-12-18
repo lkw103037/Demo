@@ -3,9 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <me.rokevin.ropager.view.RoPagerView
+    <me.rokevin.ropager.view.RoPagerView xmlns:me="http://schemas.android.com/apk/res-auto"
         android:id="@+id/c_loop"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        me:isLoop="true" />
 
 </RelativeLayout>
