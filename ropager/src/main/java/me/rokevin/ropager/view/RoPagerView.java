@@ -9,12 +9,16 @@ import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
 
 import me.rokevin.ropager.R;
 import me.rokevin.ropager.adapter.RoPagerFragmentAdapter;
+import me.rokevin.ropager.indicate.IndicateView;
+import me.rokevin.ropager.util.Util;
 
 /**
  * Created by luokaiwen on 15/12/18.
@@ -31,7 +35,7 @@ public class RoPagerView<T> extends LinearLayout {
     private final int DEFAULT_LOOP_TIME = 5000;
 
     private ViewPager vpPager;
-
+    private IndicateView indicateView;
     /**
      * 是否需要指示器
      */
@@ -119,7 +123,20 @@ public class RoPagerView<T> extends LinearLayout {
 
         View view = LayoutInflater.from(context).inflate(R.layout.custom_pager, this);
 
+        RelativeLayout rlContainer = (RelativeLayout) view.findViewById(R.id.rl_container);
         vpPager = (ViewPager) view.findViewById(R.id.vp_pager);
+
+        indicateView = new IndicateView(context);
+
+        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 100);
+
+        lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        lp.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        lp.bottomMargin = Util.dp2px(context, 20);
+        indicateView.setLayoutParams(lp);
+        indicateView.setAdatper(fragmentAdapter);
+
+        rlContainer.addView(indicateView);
 
         vpPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -129,6 +146,8 @@ public class RoPagerView<T> extends LinearLayout {
 
             @Override
             public void onPageSelected(int position) {
+
+                indicateView.onPageSelected(position);
 
                 ArrayList dataList = fragmentAdapter.getDataList();
 
@@ -158,7 +177,7 @@ public class RoPagerView<T> extends LinearLayout {
 
                             vpPager.setCurrentItem(pageIndex, false);
                         }
-                    }, 300);
+                    }, 250);
 
                     return;
                 }
@@ -250,6 +269,8 @@ public class RoPagerView<T> extends LinearLayout {
                 }
             }, loopTime);
         }
+
+        indicateView.createIndicators();
     }
 
     public RoPagerFragmentAdapter getAdapter() {
