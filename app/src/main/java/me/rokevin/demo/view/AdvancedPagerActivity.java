@@ -38,7 +38,9 @@ public class AdvancedPagerActivity extends AppCompatActivity {
             @Override
             public RoPagerFragment getFragment(RoPagerFragmentAdapter adapter, int position) {
 
-                RoPagerFragment roPagerFragment = AdvancePagerFragment.newInstance(adapter, position);
+                RoPagerFragment roPagerFragment = AdvancePagerFragment.newInstance(position);
+
+                roPagerFragment.setAdapter(adapter);
 
                 return roPagerFragment;
             }

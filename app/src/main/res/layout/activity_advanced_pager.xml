@@ -7,7 +7,10 @@
         android:id="@+id/c_loop"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        me:indicateRes="@drawable/bg_ring_red"
+        me:indicateSelectRes="@drawable/bg_ring_gray"
         me:isAutoLoop="true"
+        me:isIndicate="true"
         me:isLoop="true" />
 
 </RelativeLayout>

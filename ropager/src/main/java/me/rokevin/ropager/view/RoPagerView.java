@@ -2,10 +2,12 @@ package me.rokevin.ropager.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +19,8 @@ import java.util.ArrayList;
 
 import me.rokevin.ropager.R;
 import me.rokevin.ropager.adapter.RoPagerFragmentAdapter;
+import me.rokevin.ropager.constant.Type;
+import me.rokevin.ropager.indicate.Dot;
 import me.rokevin.ropager.indicate.IndicateView;
 import me.rokevin.ropager.util.Util;
 
@@ -34,27 +38,29 @@ public class RoPagerView<T> extends LinearLayout {
      */
     private final int DEFAULT_LOOP_TIME = 5000;
 
+    private RelativeLayout rlContainer;
     private ViewPager vpPager;
     private IndicateView indicateView;
+
     /**
      * 是否需要指示器
      */
     private boolean isIndicate;
 
     /**
+     * 指示器的样式 默认样式为原点
+     */
+    private String indicateStyle;
+
+    /**
      * 指示器的选中颜色
      */
-    private int indicateSelectColor;
+    private Drawable indicateSelectRes;
 
     /**
      * 指示器的没有选中的颜色
      */
-    private int indicateColor;
-
-    /**
-     * 指示器的样式
-     */
-    private String indicateStyle;
+    private Drawable indicateRes;
 
     /**
      * 是否是Fragment
@@ -108,6 +114,19 @@ public class RoPagerView<T> extends LinearLayout {
         // 是否显示指示器
         isIndicate = typedArray.getBoolean(R.styleable.roPager_isIndicate, false);
 
+        // 配置指示器的样式
+        indicateStyle = typedArray.getString(R.styleable.roPager_indicateStyle);
+
+        // 指示器选中颜色
+        indicateSelectRes = typedArray.getDrawable(R.styleable.roPager_indicateSelectRes);
+
+        // 指示器默认颜色
+        indicateRes = typedArray.getDrawable(R.styleable.roPager_indicateRes);
+
+        if (TextUtils.isEmpty(indicateStyle)) {
+            indicateStyle = Type.DOT;
+        }
+
         // 是否自动循环
         isAutoLoop = typedArray.getBoolean(R.styleable.roPager_isAutoLoop, false);
 
@@ -121,33 +140,36 @@ public class RoPagerView<T> extends LinearLayout {
 
         fragmentAdapter.setLoop(isLoop);
 
-        View view = LayoutInflater.from(context).inflate(R.layout.custom_pager, this);
+        View view = LayoutInflater.from(context).inflate(R.layout.ropager_custom_pager, this);
 
-        RelativeLayout rlContainer = (RelativeLayout) view.findViewById(R.id.rl_container);
+        rlContainer = (RelativeLayout) view.findViewById(R.id.rl_container);
         vpPager = (ViewPager) view.findViewById(R.id.vp_pager);
 
-        indicateView = new IndicateView(context);
+        if (isIndicate) {
 
-        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 100);
-
-        lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-        lp.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        lp.bottomMargin = Util.dp2px(context, 20);
-        indicateView.setLayoutParams(lp);
-        indicateView.setAdatper(fragmentAdapter);
-
-        rlContainer.addView(indicateView);
+            drawIndicate(context);
+        }
 
         vpPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
+                if (null != mIRoPagerListener) {
+                    mIRoPagerListener.onPageScrolled(position, positionOffset, positionOffsetPixels);
+                }
             }
 
             @Override
             public void onPageSelected(int position) {
 
-                indicateView.onPageSelected(position);
+                if (null != mIRoPagerListener) {
+                    mIRoPagerListener.onPageSelected(position);
+                }
+
+                if (null != indicateView) {
+
+                    indicateView.onPageSelected(position);
+                }
 
                 ArrayList dataList = fragmentAdapter.getDataList();
 
@@ -185,6 +207,10 @@ public class RoPagerView<T> extends LinearLayout {
 
             @Override
             public void onPageScrollStateChanged(int state) {
+
+                if (null != mIRoPagerListener) {
+                    mIRoPagerListener.onPageScrollStateChanged(state);
+                }
 
                 isIdle = (state == ViewPager.SCROLL_STATE_IDLE);
             }
@@ -250,6 +276,13 @@ public class RoPagerView<T> extends LinearLayout {
 
     public void setDataList(ArrayList<T> dateList) {
 
+        if (null == dateList || dateList.size() == 0) {
+            setVisibility(GONE);
+            return;
+        } else {
+            setVisibility(VISIBLE);
+        }
+
         fragmentAdapter.setList(dateList);
 
         if (fragmentAdapter.isLoop()) {
@@ -270,7 +303,32 @@ public class RoPagerView<T> extends LinearLayout {
             }, loopTime);
         }
 
-        indicateView.createIndicators();
+        if (null != indicateView) {
+
+            indicateView.createIndicators();
+        }
+    }
+
+    /**
+     * 设置banner高度
+     *
+     * @param height
+     */
+    public void setHeight(int height) {
+
+        getLayoutParams().height = height;
+    }
+
+    /**
+     * 清除轮询
+     */
+    public void destroyPoll() {
+
+        isCancelAutoLoop = true;
+
+        if (null != mCountDownTimer) {
+            mCountDownTimer.cancel();
+        }
     }
 
     public RoPagerFragmentAdapter getAdapter() {
@@ -279,9 +337,42 @@ public class RoPagerView<T> extends LinearLayout {
     }
 
     /**
-     * 设置控件高度
+     * 画指示器
      */
-    public void setHeight() {
+    public void drawIndicate(Context context) {
 
+        // 如果配置了适配器则显示
+        switch (indicateStyle) {
+
+            case Type.DOT:
+
+                indicateView = new Dot(context);
+
+                RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 100);
+                lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                lp.addRule(RelativeLayout.CENTER_HORIZONTAL);
+                lp.bottomMargin = Util.dp2px(context, 2);
+                indicateView.setLayoutParams(lp);
+                indicateView.setAdatper(fragmentAdapter);
+                indicateView.setBackgroundRes(indicateRes);
+                indicateView.setBackgroundSelectRes(indicateSelectRes);
+                rlContainer.addView(indicateView);
+                break;
+        }
+    }
+
+    private IRoPagerListener mIRoPagerListener;
+
+    public void setIRoPagerListener(IRoPagerListener iRoPagerListener) {
+        mIRoPagerListener = iRoPagerListener;
+    }
+
+    public interface IRoPagerListener {
+
+        void onPageScrolled(int position, float positionOffset, int positionOffsetPixels);
+
+        void onPageSelected(int position);
+
+        void onPageScrollStateChanged(int state);
     }
 }

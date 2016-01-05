@@ -21,7 +21,7 @@ public abstract class RoPagerFragment<T> extends Fragment {
     protected static final String POSTION = "position";
     protected static final String ADAPTER = "adapter";
 
-    protected static RoPagerFragmentAdapter mAdapter;
+    protected RoPagerFragmentAdapter mAdapter;
 
     protected int position;
 
@@ -30,14 +30,13 @@ public abstract class RoPagerFragment<T> extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             position = getPosition();
-            mAdapter = getAdapter();
         }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        //View v = inflater.inflate(R.layout.fragment_pager, container, false);
+        //View v = inflater.inflate(R.layout.ropager_fragment_pager, container, false);
         Log.e(TAG, "layoutId():" + layoutId());
         View v = inflater.inflate(layoutId(), container, false);
 
@@ -71,5 +70,11 @@ public abstract class RoPagerFragment<T> extends Fragment {
 
     public abstract int getPosition();
 
-    public abstract RoPagerFragmentAdapter getAdapter();
+    public RoPagerFragmentAdapter getAdapter() {
+        return mAdapter;
+    }
+
+    public void setAdapter(RoPagerFragmentAdapter adapter) {
+        mAdapter = adapter;
+    }
 }

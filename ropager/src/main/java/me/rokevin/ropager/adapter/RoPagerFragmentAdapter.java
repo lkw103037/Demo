@@ -4,7 +4,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
 import me.rokevin.ropager.fragment.RoPagerFragment;
@@ -12,7 +11,7 @@ import me.rokevin.ropager.fragment.RoPagerFragment;
 /**
  * Created by luokaiwen on 15/12/17.
  */
-public class RoPagerFragmentAdapter<T> extends FragmentPagerAdapter implements Serializable {
+public class RoPagerFragmentAdapter<T> extends FragmentPagerAdapter {
 
     private ArrayList<T> mDataList = new ArrayList<>();
 

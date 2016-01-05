@@ -6,7 +6,6 @@ import android.widget.ImageView;
 
 import me.rokevin.demo.R;
 import me.rokevin.demo.model.User;
-import me.rokevin.ropager.adapter.RoPagerFragmentAdapter;
 import me.rokevin.ropager.fragment.RoPagerFragment;
 
 /**
@@ -14,13 +13,12 @@ import me.rokevin.ropager.fragment.RoPagerFragment;
  */
 public class AdvancePagerFragment extends RoPagerFragment<User> {
 
-    public static AdvancePagerFragment newInstance(RoPagerFragmentAdapter adapter, int position) {
+    public static AdvancePagerFragment newInstance(int position) {
 
         AdvancePagerFragment fragment = new AdvancePagerFragment();
 
         Bundle args = new Bundle();
         args.putInt(POSTION, position);
-        args.putSerializable(ADAPTER, adapter);
         fragment.setArguments(args);
         return fragment;
     }
@@ -34,16 +32,11 @@ public class AdvancePagerFragment extends RoPagerFragment<User> {
 
     @Override
     public int layoutId() {
-        return R.layout.fragment_pager;
+        return R.layout.ropager_fragment_pager;
     }
 
     @Override
     public int getPosition() {
         return getArguments().getInt(POSTION);
-    }
-
-    @Override
-    public RoPagerFragmentAdapter getAdapter() {
-        return (RoPagerFragmentAdapter) getArguments().getSerializable(ADAPTER);
     }
 }

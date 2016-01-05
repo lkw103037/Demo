@@ -1,6 +1,7 @@
 package me.rokevin.ropager.indicate;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -9,7 +10,6 @@ import android.view.View;
 import android.view.animation.Interpolator;
 import android.widget.LinearLayout;
 
-import me.rokevin.ropager.R;
 import me.rokevin.ropager.adapter.RoPagerFragmentAdapter;
 import me.rokevin.ropager.util.Util;
 
@@ -18,7 +18,7 @@ import me.rokevin.ropager.util.Util;
  * <p/>
  * 指示器
  */
-public class IndicateView extends LinearLayout {
+public abstract class IndicateView extends LinearLayout {
 
     private static final String TAG = IndicateView.class.getSimpleName();
 
@@ -32,20 +32,21 @@ public class IndicateView extends LinearLayout {
         init(context, null);
     }
 
-    private final static int DEFAULT_INDICATOR_SIZE = 6;
+    protected final static int DEFAULT_INDICATOR_SIZE = 6;
 
-    private RoPagerFragmentAdapter mPagerAdapter;
+    protected RoPagerFragmentAdapter mPagerAdapter;
 
     private ViewPager.OnPageChangeListener mViewPagerOnPageChangeListener;
 
-    private int mIndicatorMargin;
+    protected int mIndicatorMargin;
 
-    private int mIndicatorWidth;
+    protected int mIndicatorWidth;
 
-    private int mIndicatorHeight;
+    protected int mIndicatorHeight;
 
-    private int mIndicatorBackground = R.drawable.bg_solid_ring_white;
-    private int mIndicatorBackgroundSelected = R.drawable.bg_solid_ring_red;
+    protected Drawable mBackgroudRes;
+
+    protected Drawable mBackgroundSelectRes;
 
     private int mCurrentPosition = 0;
 
@@ -64,7 +65,7 @@ public class IndicateView extends LinearLayout {
 //            mIndicatorHeight = typedArray.getDimensionPixelSize(R.styleable.GuideCircleIndicator_ci_height, -1);
 //            mIndicatorMargin = typedArray.getDimensionPixelSize(R.styleable.GuideCircleIndicator_ci_margin, -1);
 //            mAnimatorResId = typedArray.getResourceId(R.styleable.GuideCircleIndicator_ci_animator, R.anim.scale_with_alpha);
-//            mIndicatorBackground = typedArray.getResourceId(R.styleable.GuideCircleIndicator_ci_drawable, mIndicatorBackground);
+//            mBackgroudRes = typedArray.getResourceId(R.styleable.GuideCircleIndicator_ci_drawable, mBackgroudRes);
 //            typedArray.recycle();
 //        }
 //
@@ -100,8 +101,8 @@ public class IndicateView extends LinearLayout {
             }
         }
 
-        choicePoint(getChildAt(mCurrentPosition), mIndicatorBackground);
-        choicePoint(getChildAt(position), mIndicatorBackgroundSelected);
+        choicePoint(getChildAt(mCurrentPosition), getBackgroudRes());
+        choicePoint(getChildAt(position), getBackgroudSelectRes());
 
         Log.e(TAG, "position:" + position);
 
@@ -109,8 +110,11 @@ public class IndicateView extends LinearLayout {
     }
 
     public void createIndicators() {
+
         removeAllViews();
+
         int count = mPagerAdapter.getCount();
+
         if (count <= 0) {
             return;
         }
@@ -119,29 +123,28 @@ public class IndicateView extends LinearLayout {
             count -= 2;
         }
 
-        for (int i = 0; i < count; i++) {
-
-            View indicator = new View(getContext());
-            indicator.setBackgroundResource(mIndicatorBackground);
-            addView(indicator, mIndicatorWidth, mIndicatorHeight);
-            LayoutParams lp = (LayoutParams) indicator.getLayoutParams();
-            lp.leftMargin = mIndicatorMargin;
-            lp.rightMargin = mIndicatorMargin;
-            indicator.setLayoutParams(lp);
-
-            Log.e(TAG, "indicator height:" + indicator.getHeight());
+        if (count == 1) {
+            setVisibility(GONE);
+        } else {
+            setVisibility(VISIBLE);
         }
 
-        choicePoint(getChildAt(mCurrentPosition), mIndicatorBackgroundSelected);
+        drawChildView(count);
+
+        choicePoint(getChildAt(mCurrentPosition), getBackgroudSelectRes());
     }
 
-    public void choicePoint(View view, int color) {
+    public void choicePoint(View view, Drawable drawable) {
 
         if (null == view) {
             return;
         }
 
-        view.setBackgroundResource(color);
+        if (null == drawable) {
+            return;
+        }
+
+        view.setBackgroundDrawable(drawable);
     }
 
     private class ReverseInterpolator implements Interpolator {
@@ -150,4 +153,30 @@ public class IndicateView extends LinearLayout {
             return Math.abs(1.0f - value);
         }
     }
+
+    /**
+     * xml中配置背景资源文件
+     *
+     * @param backgroudRes
+     */
+    public void setBackgroundRes(Drawable backgroudRes) {
+
+        mBackgroudRes = backgroudRes;
+    }
+
+    /**
+     * xml中配置选中背景资源文件
+     *
+     * @param backgroudRes
+     */
+    public void setBackgroundSelectRes(Drawable backgroudRes) {
+
+        mBackgroundSelectRes = backgroudRes;
+    }
+
+    public abstract Drawable getBackgroudRes();
+
+    public abstract Drawable getBackgroudSelectRes();
+
+    public abstract void drawChildView(int count);
 }
