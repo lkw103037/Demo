@@ -40,26 +40,29 @@ public abstract class RoPagerFragment<T> extends Fragment {
         Log.e(TAG, "layoutId():" + layoutId());
         View v = inflater.inflate(layoutId(), container, false);
 
-        ArrayList<T> dataList = mAdapter.getDataList();
+        if (null != mAdapter) {
 
-        int size = dataList.size();
+            ArrayList<T> dataList = mAdapter.getDataList();
 
-        T t;
+            int size = dataList.size();
 
-        if (mAdapter.isLoop()) {
-            if (position == 0) {
-                t = dataList.get(size - 1);
-            } else if (position == size + 1) {
-                t = dataList.get(0);
+            T t;
+
+            if (mAdapter.isLoop()) {
+                if (position == 0) {
+                    t = dataList.get(size - 1);
+                } else if (position == size + 1) {
+                    t = dataList.get(0);
+                } else {
+                    t = dataList.get(position - 1);
+                }
             } else {
-                t = dataList.get(position - 1);
+                t = dataList.get(position);
             }
-        } else {
-            t = dataList.get(position);
+
+
+            onView(v, t, position);
         }
-
-
-        onView(v, t, position);
 
         return v;
     }
